@@ -72,3 +72,7 @@ is explicitly set:
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+<!-- JN -->
+
+<!-- JN -->

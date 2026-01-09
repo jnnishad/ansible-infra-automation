@@ -24,3 +24,19 @@ jobs:
 
       - name: Syntax-check custom module
         run: python -m py_compile library/*.py
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: pip install ansible-core boto3 pytest
+
+      - name: Run unit tests against the custom module's pure logic
+        run: pytest tests/ -v
