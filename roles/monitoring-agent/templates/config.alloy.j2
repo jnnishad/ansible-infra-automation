@@ -1,0 +1,24 @@
+// Rendered by the monitoring-agent role — ships this node's metrics and
+// journal logs to the central Mimir/Loki stack (see k8s-observability-stack).
+prometheus.exporter.unix "node" { }
+
+prometheus.scrape "node" {
+  targets    = prometheus.exporter.unix.node.targets
+  forward_to = [prometheus.remote_write.central.receiver]
+}
+
+prometheus.remote_write "central" {
+  endpoint {
+    url = "{{ monitoring_mimir_endpoint }}"
+  }
+}
+
+loki.source.journal "system" {
+  forward_to = [loki.write.central.receiver]
+}
+
+loki.write "central" {
+  endpoint {
+    url = "{{ monitoring_loki_endpoint }}"
+  }
+}

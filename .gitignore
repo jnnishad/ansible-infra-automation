@@ -1,0 +1,6 @@
+*.retry
+inventory/hosts.ini
+.vault_pass
+*.pyc
+__pycache__/
+.DS_Store

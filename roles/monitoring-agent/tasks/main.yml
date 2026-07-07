@@ -1,0 +1,48 @@
+---
+# Installs Grafana Alloy as a system service on non-Kubernetes hosts
+# (bare-metal / VM fleets) so they show up in the same Mimir/Loki stack
+# as the Kubernetes clusters.
+
+- name: Download Alloy binary
+  ansible.builtin.get_url:
+    url: "https://github.com/grafana/alloy/releases/download/v{{ monitoring_agent_version }}/alloy-linux-amd64.zip"
+    dest: /tmp/alloy.zip
+    mode: "0644"
+
+- name: Unpack Alloy
+  ansible.builtin.unarchive:
+    src: /tmp/alloy.zip
+    dest: /usr/local/bin
+    remote_src: true
+
+- name: Render Alloy config
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: /etc/alloy/config.alloy
+    mode: "0644"
+  notify: restart alloy
+
+- name: Install systemd unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/alloy.service
+    content: |
+      [Unit]
+      Description=Grafana Alloy
+      After=network-online.target
+
+      [Service]
+      ExecStart=/usr/local/bin/alloy-linux-amd64 run /etc/alloy/config.alloy
+      Restart=on-failure
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart alloy
+
+- name: Ensure alloy is enabled and running
+  ansible.builtin.systemd:
+    name: alloy
+    enabled: true
+    state: started

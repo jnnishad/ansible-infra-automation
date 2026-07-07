@@ -1,0 +1,14 @@
+---
+# Top-level playbook: applies the full baseline to every host in inventory.
+- name: Apply baseline hardening and monitoring to all hosts
+  hosts: all
+  become: true
+  roles:
+    - linux-hardening
+    - monitoring-agent
+
+- name: Install Docker on hosts that run containers
+  hosts: web:k8s_nodes
+  become: true
+  roles:
+    - docker-install

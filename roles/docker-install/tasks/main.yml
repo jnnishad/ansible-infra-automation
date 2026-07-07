@@ -1,0 +1,52 @@
+---
+# Installs Docker CE from the official repo and configures a sane
+# daemon.json (log rotation, overlay2) so hosts don't fill their disks
+# with unbounded container logs — a lesson learned running Docker-compose
+# stacks in production at Neosoft Technologies.
+
+- name: Install prerequisite packages
+  ansible.builtin.package:
+    name: [ca-certificates, curl, gnupg]
+    state: present
+
+- name: Add Docker GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+  when: ansible_os_family == "Debian"
+
+- name: Add Docker apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ ansible_architecture | regex_replace('x86_64','amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker Engine
+  ansible.builtin.package:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+    state: present
+
+- name: Configure Docker daemon (log rotation + overlay2)
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": { "max-size": "10m", "max-file": "3" },
+        "storage-driver": "overlay2"
+      }
+    mode: "0644"
+  notify: restart docker
+
+- name: Ensure docker service is enabled and running
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Add automation user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true

@@ -1,0 +1,3 @@
+monitoring_mimir_endpoint: "http://mimir-nginx.monitoring.internal/api/v1/push"
+monitoring_loki_endpoint: "http://loki-write.monitoring.internal:3100/loki/api/v1/push"
+monitoring_agent_version: "1.4.3"

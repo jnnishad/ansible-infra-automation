@@ -1,0 +1,7 @@
+hardening_disable_root_ssh: true
+hardening_password_auth: false
+hardening_fail2ban_enabled: true
+hardening_unattended_upgrades: true
+hardening_ntp_servers:
+  - 0.pool.ntp.org
+  - 1.pool.ntp.org

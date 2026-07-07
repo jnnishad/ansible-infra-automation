@@ -1,0 +1,51 @@
+---
+# Provisions a fleet of AWS EC2 instances and immediately brings them
+# under configuration management — the "automated cloud deployments
+# using Ansible and Python" pattern from the Atom Technologies role.
+# Pairs with terraform-multicloud-infra for anything beyond bare
+# instances (VPCs, EKS, etc.); this playbook is for quick fleet
+# provisioning where a full Terraform stack would be overkill.
+- name: Provision EC2 instances
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    instance_count: 3
+    instance_type: t3.medium
+    ami_id: ami-0c55b159cbfafe1f0
+    key_name: infra-automation
+    security_group: default
+    subnet_id: subnet-REPLACE_ME
+
+  tasks:
+    - name: Launch instances
+      amazon.aws.ec2_instance:
+        name: "app-node-{{ item }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ ami_id }}"
+        key_name: "{{ key_name }}"
+        security_groups: ["{{ security_group }}"]
+        vpc_subnet_id: "{{ subnet_id }}"
+        wait: true
+        tags:
+          Environment: staging
+          ManagedBy: ansible
+      loop: "{{ range(1, instance_count + 1) | list }}"
+      register: ec2_result
+
+    - name: Add new instances to in-memory inventory
+      ansible.builtin.add_host:
+        name: "{{ item.instances[0].public_ip_address }}"
+        groups: newly_provisioned
+      loop: "{{ ec2_result.results }}"
+      when: item.instances is defined
+
+- name: Configure newly provisioned instances
+  hosts: newly_provisioned
+  become: true
+  gather_facts: true
+  roles:
+    - linux-hardening
+    - docker-install
+    - monitoring-agent

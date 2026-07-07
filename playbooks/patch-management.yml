@@ -1,0 +1,56 @@
+---
+# Rolling OS patch run: one host at a time, health-checked before moving
+# on. Mirrors the "OS patching" / "patch upgrades" responsibilities from
+# NEC India and Dolat Capital — designed to run unattended via a cron'd
+# AWX/cron job with serial execution so a bad patch doesn't take down a
+# whole fleet at once.
+- name: Rolling OS patch and reboot
+  hosts: all
+  become: true
+  serial: 1
+  max_fail_percentage: 0
+
+  tasks:
+    - name: Update package cache (Debian)
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    - name: Upgrade all packages (Debian)
+      ansible.builtin.apt:
+        upgrade: dist
+      when: ansible_os_family == "Debian"
+      register: apt_upgrade
+
+    - name: Upgrade all packages (RedHat family)
+      ansible.builtin.yum:
+        name: "*"
+        state: latest
+      when: ansible_os_family == "RedHat"
+      register: yum_upgrade
+
+    - name: Check if reboot is required (Debian)
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+      when: ansible_os_family == "Debian"
+
+    - name: Reboot if required
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+      when:
+        - ansible_os_family == "Debian"
+        - reboot_required_file.stat.exists
+
+    - name: Wait for host to respond after reboot
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        timeout: 300
+
+    - name: Verify critical services are running post-patch
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+      loop: "{{ post_patch_services | default(['sshd']) }}"
+      register: service_check
+      failed_when: service_check.state is defined and service_check.state != 'started'
