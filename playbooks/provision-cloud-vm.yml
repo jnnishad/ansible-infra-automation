@@ -46,6 +46,6 @@
   become: true
   gather_facts: true
   roles:
-    - linux-hardening
-    - docker-install
-    - monitoring-agent
+    - linux_hardening
+    - docker_install
+    - monitoring_agent

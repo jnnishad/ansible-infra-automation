@@ -23,7 +23,7 @@
       register: apt_upgrade
 
     - name: Upgrade all packages (RedHat family)
-      ansible.builtin.yum:
+      ansible.builtin.yum:  # noqa: package-latest -- intentional: this *is* the patch-management playbook
         name: "*"
         state: latest
       when: ansible_os_family == "RedHat"

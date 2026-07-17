@@ -4,3 +4,4 @@ inventory/hosts.ini
 *.pyc
 __pycache__/
 .DS_Store
+roles/_movetest2/

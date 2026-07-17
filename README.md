@@ -1,7 +1,7 @@
 # ansible-infra-automation
 
 Ansible roles, playbooks, and a custom Python module for baseline server
-hardening, Docker installation, monitoring-agent rollout, patch
+hardening, Docker installation, monitoring_agent rollout, patch
 management, and cloud VM provisioning — the configuration-management
 half of the stack that Terraform/Pulumi provisions.
 
@@ -17,9 +17,9 @@ work at Dolat Capital Market and cloud automation at Atom Technologies.
 
 ```
 roles/
-  linux-hardening/     SSH lockdown, fail2ban, unattended upgrades, sysctl hardening, NTP
-  docker-install/       Docker CE + sane daemon.json (log rotation, overlay2)
-  monitoring-agent/     Installs Grafana Alloy as a systemd service, ships to central Mimir/Loki
+  linux_hardening/     SSH lockdown, fail2ban, unattended upgrades, sysctl hardening, NTP
+  docker_install/       Docker CE + sane daemon.json (log rotation, overlay2)
+  monitoring_agent/     Installs Grafana Alloy as a systemd service, ships to central Mimir/Loki
 playbooks/
   site.yml               Applies the full baseline to every host in inventory
   patch-management.yml   Rolling, serial OS patch + reboot with post-patch health checks

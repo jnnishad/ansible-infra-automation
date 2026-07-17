@@ -4,11 +4,11 @@
   hosts: all
   become: true
   roles:
-    - linux-hardening
-    - monitoring-agent
+    - linux_hardening
+    - monitoring_agent
 
 - name: Install Docker on hosts that run containers
   hosts: web:k8s_nodes
   become: true
   roles:
-    - docker-install
+    - docker_install

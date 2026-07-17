@@ -19,7 +19,7 @@
     regexp: '^#?PermitRootLogin'
     line: 'PermitRootLogin no'
   when: hardening_disable_root_ssh
-  notify: restart sshd
+  notify: Restart sshd
 
 - name: Disable SSH password authentication
   ansible.builtin.lineinfile:
@@ -27,7 +27,7 @@
     regexp: '^#?PasswordAuthentication'
     line: 'PasswordAuthentication no'
   when: not hardening_password_auth
-  notify: restart sshd
+  notify: Restart sshd
 
 - name: Enable and start fail2ban
   ansible.builtin.systemd:
@@ -52,7 +52,7 @@
     src: chrony.conf.j2
     dest: /etc/chrony/chrony.conf
     mode: "0644"
-  notify: restart chrony
+  notify: Restart chrony
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Set kernel hardening sysctl parameters

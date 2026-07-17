@@ -1,0 +1,10 @@
+---
+# Collections this repo's playbooks/roles depend on. Installed in CI
+# before ansible-lint runs -- without these, ansible-lint's syntax
+# check can't resolve ansible.posix.sysctl or amazon.aws.ec2_instance
+# and (correctly) reports them as unknown modules.
+collections:
+  - name: ansible.posix
+    version: ">=1.5.0"
+  - name: amazon.aws
+    version: ">=7.0.0"
