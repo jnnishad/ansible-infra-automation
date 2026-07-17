@@ -1,4 +1,4 @@
-{% for server in hardening_ntp_servers %}
+{% for server in linux_hardening_ntp_servers %}
 server {{ server }} iburst
 {% endfor %}
 driftfile /var/lib/chrony/drift

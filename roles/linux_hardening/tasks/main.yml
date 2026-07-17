@@ -18,7 +18,7 @@
     path: /etc/ssh/sshd_config
     regexp: '^#?PermitRootLogin'
     line: 'PermitRootLogin no'
-  when: hardening_disable_root_ssh
+  when: linux_hardening_disable_root_ssh
   notify: Restart sshd
 
 - name: Disable SSH password authentication
@@ -26,7 +26,7 @@
     path: /etc/ssh/sshd_config
     regexp: '^#?PasswordAuthentication'
     line: 'PasswordAuthentication no'
-  when: not hardening_password_auth
+  when: not linux_hardening_password_auth
   notify: Restart sshd
 
 - name: Enable and start fail2ban
@@ -34,7 +34,7 @@
     name: fail2ban
     enabled: true
     state: started
-  when: hardening_fail2ban_enabled
+  when: linux_hardening_fail2ban_enabled
 
 - name: Enable unattended upgrades
   ansible.builtin.copy:
@@ -44,7 +44,7 @@
       APT::Periodic::Unattended-Upgrade "1";
     mode: "0644"
   when:
-    - hardening_unattended_upgrades
+    - linux_hardening_unattended_upgrades
     - ansible_os_family == "Debian"
 
 - name: Configure chrony NTP servers

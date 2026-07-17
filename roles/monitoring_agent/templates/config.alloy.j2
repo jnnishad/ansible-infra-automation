@@ -9,7 +9,7 @@ prometheus.scrape "node" {
 
 prometheus.remote_write "central" {
   endpoint {
-    url = "{{ monitoring_mimir_endpoint }}"
+    url = "{{ monitoring_agent_mimir_endpoint }}"
   }
 }
 
@@ -19,6 +19,6 @@ loki.source.journal "system" {
 
 loki.write "central" {
   endpoint {
-    url = "{{ monitoring_loki_endpoint }}"
+    url = "{{ monitoring_agent_loki_endpoint }}"
   }
 }

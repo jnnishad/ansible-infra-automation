@@ -20,7 +20,7 @@
     src: config.alloy.j2
     dest: /etc/alloy/config.alloy
     mode: "0644"
-  notify: restart alloy
+  notify: Restart alloy
 
 - name: Install systemd unit
   ansible.builtin.copy:
@@ -38,8 +38,8 @@
       WantedBy=multi-user.target
     mode: "0644"
   notify:
-    - reload systemd
-    - restart alloy
+    - Reload systemd
+    - Restart alloy
 
 - name: Ensure alloy is enabled and running
   ansible.builtin.systemd:
